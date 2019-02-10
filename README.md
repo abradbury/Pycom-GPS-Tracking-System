@@ -24,6 +24,11 @@ Basic GPS readout has been implemented using [Pycom's libraries and examples](ht
 ### Bluetooth
 TODO
 
+[Pycom Bluetooth API](https://docs.pycom.io/firmwareapi/pycom/network/bluetooth/)
+[Pycom Bluetooth tutorial](https://docs.pycom.io/tutorials/all/ble.html)
+
+It does not seem possible to uniquely identify an (iOS) phone using Bluetooth Low Energy, as this sort of thing is discouraged for privacy reasons. The advertised MAC address randomly changes. Cannot connect using the actual MAC address. It is possible to *temperamentally* list the services and characteristics the device offers. One possible solution would be to create an iOS app that sets some specific service UUID to search for, but there is some doubt over this as well.
+
 ### Communications
 The plan is to use SigFox until the UK's IOT LTE network capability is ready, then switch to using a Hologram.io SIM card. Communication rate will be limited as there are restrictions on the amount of data that can be send over these networks over a given time period. 
 
