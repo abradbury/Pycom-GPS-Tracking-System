@@ -3,6 +3,10 @@
 import machine
 import math
 import network
+from network import Sigfox
+import socket
+import struct
+import pycom
 import os
 import time
 import utime
@@ -19,7 +23,7 @@ class CommunicationInterface():
     def setup(self):
         pass
 
-    def send(self, data):
+    def send(self, coordinates):
         pass
 
 
@@ -28,17 +32,36 @@ class WiFiCommunication(CommunicationInterface):
         print("Setting up WiFi...")
         print("WiFi set up")
 
-    def send(self, data):
-        print("Sending: " + str(data))
+    def send(self, coordinates):
+        print("Sending: " + str(coordinates))
 
 
 class SigFoxCommunication(CommunicationInterface):
+    # https://docs.pycom.io/firmwareapi/pycom/network/sigfox.html
+
     def setup(self):
         print("Setting up SigFox...")
+        # RCZ1 to specify Europe, Oman & South Africa.
+        # RCZ2 for the USA, Mexico & Brazil.
+        # RCZ3 for Japan.
+        # RCZ4 for Australia, New Zealand, Singapore, Taiwan, Hong Kong, Colombia & Argentina.
+        sigfox = Sigfox(mode=Sigfox.SIGFOX, rcz=Sigfox.RCZ1)
+        self.sigfoxSocket = socket.socket(socket.AF_SIGFOX, socket.SOCK_RAW)
+        self.sigfoxSocket.setblocking(True)
+        self.sigfoxSocket.setsockopt(socket.SOL_SIGFOX, socket.SO_RX, False)
         print("SigFox set up")
 
-    def send(self, data):
-        print("Sending: " + str(data))
+    def send(self, coordinates):
+        dataToSend = struct.pack('>II', int(coordinates[0]*100000),  int(coordinates[1]*100000))
+        print("Sending: " + str(coordinates) + " over SigFox as " + str(dataToSend) + "(" + str(len(dataToSend)) + " bytes)...")
+
+        # Maximum data size is 12 bytes
+        # Up to 140 messages per day
+        pycom.rgbled(0xff00)
+        self.sigfoxSocket.send(dataToSend)
+        pycom.rgbled(0)
+
+        print("Sent")
 
 
 class CellularCommunication(CommunicationInterface):
@@ -46,8 +69,8 @@ class CellularCommunication(CommunicationInterface):
         print("Setting up Cellular...")
         print("Cellular set up...")
 
-    def send(self, data):
-        print("Sending: " + str(data))
+    def send(self, coordinates):
+        print("Sending: " + str(coordinates))
 
 
 class ConsoleCommunication(CommunicationInterface):
@@ -55,9 +78,9 @@ class ConsoleCommunication(CommunicationInterface):
         print("Setting up console...")
         print("Console set up...")
 
-    def send(self, data):
-        print("Sending: " + str(data))
-        print("{}".format(data))
+    def send(self, coordinates):
+        print("Sending: " + str(coordinates))
+        print("{}".format(coordinates))
 
 
 # Unfortunately, the abstract base class (abc) module is not available in MicroPython
@@ -68,7 +91,7 @@ class GNSSInterface():
     def setup(self):
         pass
 
-    def getLocation(self):
+    def getCoordinates(self):
         pass
 
 
@@ -93,7 +116,7 @@ class PycomGNSS(GNSSInterface):
 
         print("GNSS connection acquired")
 
-    def getLocation(self):
+    def getCoordinates(self):
         return self.gnss.coordinates()
 
 
@@ -113,12 +136,14 @@ class CarTracker:
             communication.setup()
 
     def sendLocationData(self):
-        location = self.gnss.getLocation()
+        coordinates = self.gnss.getCoordinates()
         for communication in self.communications:
-            communication.send(location)
+            communication.send(coordinates)
 
+pycom.heartbeat(False)
+pycom.rgbled(0xFFBF00)
 
-communications = [ConsoleCommunication()]
+communications = [SigFoxCommunication()]
 gnss = PycomGNSS()
 
 carTracker = CarTracker(communications, gnss)
