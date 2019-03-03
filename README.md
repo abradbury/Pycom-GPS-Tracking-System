@@ -30,11 +30,22 @@ TODO
 It does not seem possible to uniquely identify an (iOS) phone using Bluetooth Low Energy, as this sort of thing is discouraged for privacy reasons. The advertised MAC address randomly changes. Cannot connect using the actual MAC address. It is possible to *temperamentally* list the services and characteristics the device offers. One possible solution would be to create an iOS app that sets some specific service UUID to search for, but there is some doubt over this as well.
 
 ### Communications
+
+[Pycom SigFox API](https://docs.pycom.io/firmwareapi/pycom/network/sigfox.html)
+[Pycom SigFox tutorial](https://docs.pycom.io/tutorials/sigfox.html)
+
 The plan is to use SigFox until the UK's IOT LTE network capability is ready, then switch to using a Hologram.io SIM card. Communication rate will be limited as there are restrictions on the amount of data that can be send over these networks over a given time period. 
 
 - The SigFox connection is disappointingly poor where the car will be mainly based, with only 1 in 30 messages getting through, though elevation helps
 - To address this, have the SigFox server respond when a message is received - if it can (only 4 downlink messages a day are allowed), then the tracker can stop transmitting, unless the owner intervenes and would like to track the vehicle
 - Get callbacks/scheduling working
+
+- The SigFox limit is a regulatory limit, specifically 6 messages per hour
+- Downlink messages can only be sent when requested by the device
+- The simplest option, for now, would be to have the device continually transmit - but for more use, a battery should be added
+  - SigFox TX: 42 mA, idle: 62.7 mA, deep sleep: 24 uA
+  - How to enter deep sleep?
+  - How to measure voltage/current usage?
 
 ### Monitoring
 The plan is to use either the free tier of Microsoft Azure IoT Central, or the Pybytes platform to view data sent from the Pycom boards, track the position of them and to send out alerts. The monitoring/tracking should be shareable, so, for example, the Police can use it to recover the stolen vehicle. 

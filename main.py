@@ -11,6 +11,7 @@ import os
 import time
 import utime
 import gc
+from machine import Timer   # For the period scheduling of transmissions
 from machine import RTC
 from L76GNSS import L76GNSS
 from pytrack import Pytrack
@@ -121,19 +122,22 @@ class PycomGNSS(GNSSInterface):
 
 
 class CarTracker:
-    def __init__(self, communications, gnss):
+    def __init__(self, communications, gnss, updateRate):
         self.communications = communications
         self.gnss = gnss
+        self.__alarm = Timer.Alarm(handler=None, s=updateRate, periodic=True)
 
     def beginTracking(self):
         self.setup()
-        while(True):
-            self.sendLocationData()
+        self.__alarm.callback(handler=self.alarmCallback, arg=None)
 
     def setup(self):
         self.gnss.setup()
         for communication in self.communications:
             communication.setup()
+
+    def alarmCallback(self, alarm):
+        self.sendLocationData()
 
     def sendLocationData(self):
         coordinates = self.gnss.getCoordinates()
@@ -145,6 +149,7 @@ pycom.rgbled(0xFFBF00)
 
 communications = [SigFoxCommunication()]
 gnss = PycomGNSS()
+updateRate = 60 # Seconds
 
-carTracker = CarTracker(communications, gnss)
+carTracker = CarTracker(communications, gnss, updateRate)
 carTracker.beginTracking()
