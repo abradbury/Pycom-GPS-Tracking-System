@@ -129,6 +129,7 @@ class CarTracker:
 
     def beginTracking(self):
         self.setup()
+        self.sendLocationData()
         self.__alarm.callback(handler=self.alarmCallback, arg=None)
 
     def setup(self):
@@ -149,7 +150,7 @@ pycom.rgbled(0xFFBF00)
 
 communications = [SigFoxCommunication()]
 gnss = PycomGNSS()
-updateRate = 60 # Seconds
+updateRate = 600 # Seconds
 
 carTracker = CarTracker(communications, gnss, updateRate)
 carTracker.beginTracking()
