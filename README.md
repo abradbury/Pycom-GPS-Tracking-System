@@ -1,6 +1,6 @@
 # GPS Tracker
 
-A project to create a GPS tracking device with no monthly costs. Uses a Pycom [fipy](https://pycom.io/product/fipy/) and [pytrack](https://pycom.io/product/pytrack/). 
+An exploratory project with the aim of creating a GPS tracking device with no monthly costs. 
 
 The idea is for the GPS tracker to be placed inside a vehicle and when the vehicle starts up the tracker searches for an approved mobile telephone over Bluetooth. If the phone cannot be found, it assumes that the car is being stolen, alerts the user and begins tracking the car.
 
@@ -8,9 +8,21 @@ There is an additional option to include a small battery such that the tracker c
 
 ## Usage
 1. Using Visual Studio, install the Pymakr plugin
-2. Connect the pytrack with attached fipy to the computer
+2. Connect the pytrack with attached FiPy to the computer
 3. Open the code in Visual Studio
 4. Right click on one of the project files and click upload
+
+## Components
+* [Pycom FiPy](https://pycom.io/product/fipy/) (when the UK's IOT LTE network capability is ready, then a [Pycom GPy](https://pycom.io/product/gpy/) can be used instead, as it is cheaper)
+* [Pycom pytrack](https://pycom.io/product/pytrack/) (includes GNSS capabilities and an accelerometer)
+* Sigfox antenna
+* Cellular antenna
+* A case/box such as the [Pycase](https://pycom.io/product/pycase-clear/)
+* A "hard-wire kit" to connect the tracker to your car's fuse box, for example, [the Nextbase one](https://www.amazon.co.uk/Nextbase-Camera-Hard-Wire-Kit/dp/B00XHYSQAC) (but you would need a Micro USB to Mini USB converter/adapter as Nextbase DashCams have a Mini USB input, but Pycom boards have Micro USB)
+
+Total component cost: around £100
+
+Total monthly cost: £0
 
 ## Functionality
 ### GPS
