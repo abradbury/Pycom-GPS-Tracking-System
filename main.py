@@ -3,7 +3,6 @@
 import machine
 import math
 import network
-from network import Sigfox
 import socket
 import struct
 import pycom
@@ -46,7 +45,7 @@ class SigFoxCommunication(CommunicationInterface):
         # RCZ2 for the USA, Mexico & Brazil.
         # RCZ3 for Japan.
         # RCZ4 for Australia, New Zealand, Singapore, Taiwan, Hong Kong, Colombia & Argentina.
-        sigfox = Sigfox(mode=Sigfox.SIGFOX, rcz=Sigfox.RCZ1)
+        sigfox = network.Sigfox(mode=network.Sigfox.SIGFOX, rcz=network.Sigfox.RCZ1)
         self.sigfoxSocket = socket.socket(socket.AF_SIGFOX, socket.SOCK_RAW)
         self.sigfoxSocket.setblocking(True)
         self.sigfoxSocket.setsockopt(socket.SOL_SIGFOX, socket.SO_RX, False)
@@ -133,6 +132,11 @@ class CarTracker:
         self.__alarm.callback(handler=self.alarmCallback, arg=None)
 
     def setup(self):
+        # Turn off network services that are not needed
+        network.bluetooth.deinit()
+        network.wlan.deinit()
+        network.lte.deinit()
+
         self.gnss.setup()
         for communication in self.communications:
             communication.setup()
