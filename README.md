@@ -48,7 +48,7 @@ It does not seem possible to uniquely identify an (iOS) phone using Bluetooth Lo
 
 The plan is to use SigFox until the UK's IOT LTE network capability is ready, then switch to using a Hologram.io SIM card. Communication rate will be limited as there are restrictions on the amount of data that can be send over these networks over a given time period. 
 
-- The SigFox connection is disappointingly poor where the car will be mainly based, with only 1 in 30 messages getting through, though elevation helps
+- The SigFox connection is disappointingly poor where the car will be mainly based, with only 1 in 100 messages getting through, though elevation helps
 - To address this, have the SigFox server respond when a message is received - if it can (only 4 downlink messages a day are allowed), then the tracker can stop transmitting, unless the owner intervenes and would like to track the vehicle
 - Get callbacks/scheduling working
 

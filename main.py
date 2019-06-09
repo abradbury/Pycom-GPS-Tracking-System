@@ -133,13 +133,26 @@ class CarTracker:
 
     def setup(self):
         # Turn off network services that are not needed
-        network.bluetooth.deinit()
-        network.wlan.deinit()
-        network.lte.deinit()
+        network.Bluetooth().deinit()
+        network.WLAN().deinit()
+        network.LTE().deinit()
 
         self.gnss.setup()
         for communication in self.communications:
             communication.setup()
+
+    def logCoordinates(self, datetime, coordinates):
+        with open("/flash/locations.txt", "a+") as location_file:
+            # 2019-05-22 11:41:19 (51.80332, -0.17852)
+            location_file.write(str(datetime) + " " + str(coordinates) + "\n")
+        # To read the written data:
+        #   with open("/flash/locations.txt", "r+") as locations_file:
+        #       locations_file.read().split("\n")
+        # TODO: Check that the file system does not get full, delete oldest/first lines from file if this happens
+        #   Useful commands to do this: 
+        #       os.getfree("/flash") # in KiB? e.g. 4036
+        #       os.listdir("/flash")
+        #       os.stat("/flash/main.py") # 7 tuple is size in bytes e.g. 4345 bytes = 4 KB
 
     def alarmCallback(self, alarm):
         self.sendLocationData()
@@ -148,13 +161,16 @@ class CarTracker:
         coordinates = self.gnss.getCoordinates()
         for communication in self.communications:
             communication.send(coordinates)
+            # The GNSS system will know the datetime, but the Pycom library does not expose this. The device
+            # itself has no concent of time, other than local time, which isn't useful. 
+            self.logCoordinates("???", coordinates)
 
 pycom.heartbeat(False)
 pycom.rgbled(0xFFBF00)
 
 communications = [SigFoxCommunication()]
 gnss = PycomGNSS()
-updateRate = 600 # Seconds
+updateRate = 30 # Seconds (should be 600 = 10 minutes)
 
 carTracker = CarTracker(communications, gnss, updateRate)
 carTracker.beginTracking()
